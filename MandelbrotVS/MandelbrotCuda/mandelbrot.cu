@@ -12,7 +12,7 @@
 #include "mandelbrot.h"
 #include "conf.h"
 
-__host__ std::vector<int> mandelbrotHostEnqueue(int w, int h, double *gpuTime)
+__host__ std::vector<int> mandelbrotHostEnqueueCuda(int w, int h, double *gpuTime)
 {
   // allocate memory
   const size_t dwellsSize = w * h * sizeof(int);
@@ -35,7 +35,7 @@ __host__ std::vector<int> mandelbrotHostEnqueue(int w, int h, double *gpuTime)
   return dwellsHost;
 }
 
-__host__ std::vector<int> mandelbrotDeviceEnqueue(int w, int h, double* gpuTime)
+__host__ std::vector<int> mandelbrotDeviceEnqueueCuda(int w, int h, double* gpuTime)
 {
   // allocate memory
   const size_t dwellsSize = w * h * sizeof(int);

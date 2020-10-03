@@ -8,9 +8,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MandelbrotGpu", "MandelbrotGpu\MandelbrotGpu.vcxproj", "{D7C9EB2B-C8B9-4D31-981C-D42A03B51275}"
 	ProjectSection(ProjectDependencies) = postProject
 		{96CD4300-C8CB-4A24-81AD-C814FD9D2222} = {96CD4300-C8CB-4A24-81AD-C814FD9D2222}
+		{595782CB-5CE1-4567-8E03-533DF6C35BD3} = {595782CB-5CE1-4567-8E03-533DF6C35BD3}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MandelbrotShared", "MandelbrotShared\MandelbrotShared.vcxproj", "{47E6887A-C56C-499B-8F8E-853D518EE676}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MandelbrotOpencl", "MandelbrotOpencl\MandelbrotOpencl.vcxproj", "{595782CB-5CE1-4567-8E03-533DF6C35BD3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +33,10 @@ Global
 		{47E6887A-C56C-499B-8F8E-853D518EE676}.Debug|x64.Build.0 = Debug|x64
 		{47E6887A-C56C-499B-8F8E-853D518EE676}.Release|x64.ActiveCfg = Release|x64
 		{47E6887A-C56C-499B-8F8E-853D518EE676}.Release|x64.Build.0 = Release|x64
+		{595782CB-5CE1-4567-8E03-533DF6C35BD3}.Debug|x64.ActiveCfg = Debug|x64
+		{595782CB-5CE1-4567-8E03-533DF6C35BD3}.Debug|x64.Build.0 = Debug|x64
+		{595782CB-5CE1-4567-8E03-533DF6C35BD3}.Release|x64.ActiveCfg = Release|x64
+		{595782CB-5CE1-4567-8E03-533DF6C35BD3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

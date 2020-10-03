@@ -1,19 +1,20 @@
 #include <vector>
 
 #include "mandelbrot.h"
+#include "mandelbrotOpencl.h"
 #include "image.h"
 
 /** data size */
 #define H (8 * 1024)
 #define W (8 * 1024)
 
-void mandelbrotCudaHostEnqueue()
+void mandelbrotCudaStaticEnqueueTest()
 {
   double gpuTime = 0;
   const char imagePath[] = "./mandelbrot.png";
   int w = W, h = H;
 
-  std::vector<int> dwells =  mandelbrotHostEnqueue(w, h, &gpuTime);
+  std::vector<int> dwells =  mandelbrotHostEnqueueCuda(w, h, &gpuTime);
 
   // save the image to PNG
   save_image(imagePath, dwells.data(), w, h);
@@ -22,13 +23,13 @@ void mandelbrotCudaHostEnqueue()
   printf("Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
 }
 
-void mandelbrotCudaDeviceEnqueue()
+void mandelbrotCudaDynamicEnqueueTest()
 {
   double gpuTime = 0;
   const char imagePath[] = "./mandelbrotDeviceEnqueue.png";
   int w = W, h = H;
 
-  std::vector<int> dwells = mandelbrotDeviceEnqueue(w, h, &gpuTime);
+  std::vector<int> dwells = mandelbrotDeviceEnqueueCuda(w, h, &gpuTime);
 
   // save the image to PNG
   save_image(imagePath, dwells.data(), w, h);
@@ -37,9 +38,21 @@ void mandelbrotCudaDeviceEnqueue()
   printf("Mandelbrot set(device enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
 }
 
+void mandelbrotOpenclHostEnqueue()
+{
+  double gpuTime = 0;
+  const char imagePath[] = "./mandelbrot_opencl.png";
+  int w = W, h = H;
+
+  std::vector<int> dwells = mandelbrotHostEnqueueOpencl(w, h, &gpuTime);
+
+  printf("mandelbrotOpenclHostEnqueue stub");
+}
+
 int main()
 {
-  mandelbrotCudaHostEnqueue();
-  mandelbrotCudaDeviceEnqueue();
+  mandelbrotCudaStaticEnqueueTest();
+  mandelbrotCudaDynamicEnqueueTest();
+  mandelbrotOpenclHostEnqueue();
   return 0;
 }
