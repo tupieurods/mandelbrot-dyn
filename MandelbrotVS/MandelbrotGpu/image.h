@@ -42,7 +42,6 @@ void save_image(const char* filename, int* dwells, int w, int h)
   char title[] = "Title";
   char text[] = "Mandelbrot set, per-pixel";
 
-
   png_bytep row;
 
   FILE* fp = fopen(filename, "wb");

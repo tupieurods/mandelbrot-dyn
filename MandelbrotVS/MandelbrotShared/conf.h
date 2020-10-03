@@ -1,9 +1,5 @@
 #pragma once
 
-/** data size */
-#define H (8 * 1024)
-#define W (8 * 1024)
-
 //#define MAX_DWELL 256
 #define BS 256
 

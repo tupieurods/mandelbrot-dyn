@@ -6,9 +6,9 @@
 #include "device_launch_parameters.h"
 #include "device_functions.h"
 #include "myComplex.h"
-#include "conf.h"
-#include "kernels.h"
+#include "mandelbrotDevice.h"
 #include "utils.h"
+#include "conf.h"
 
 /** computes the dwell for a single pixel */
 __device__ int pixel_dwell(int w, int h, complex cmin, complex cmax, int x, int y)
