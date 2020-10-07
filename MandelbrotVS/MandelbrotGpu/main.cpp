@@ -46,13 +46,17 @@ void mandelbrotOpenclHostEnqueue()
 
   std::vector<int> dwells = mandelbrotHostEnqueueOpencl(w, h, &gpuTime);
 
-  printf("mandelbrotOpenclHostEnqueue stub");
+  // save the image to PNG
+  save_image(imagePath, dwells.data(), w, h);
+
+  // print performance
+  printf("OPENCL. Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, gpuTime != 0.0 ? w * h * 1e-6 / gpuTime : NAN);
 }
 
 int main()
 {
-  mandelbrotCudaStaticEnqueueTest();
-  mandelbrotCudaDynamicEnqueueTest();
+  //mandelbrotCudaStaticEnqueueTest();
+  //mandelbrotCudaDynamicEnqueueTest();
   mandelbrotOpenclHostEnqueue();
   return 0;
 }
