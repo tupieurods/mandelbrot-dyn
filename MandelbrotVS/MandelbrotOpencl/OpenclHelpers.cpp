@@ -2,6 +2,7 @@
 #include <vector>
 #include "cl2.hpp"
 #include <filesystem>
+#include <optional>
 #include "FileHelpers.h"
 
 std::string OpenclErrorCodeToString(const cl_int code)
@@ -165,6 +166,24 @@ cl::CommandQueue CreateOpenclCommandQueue(cl::Context &context, cl::Device &devi
   const cl_command_queue_properties props = 0;
   cl::CommandQueue result(context, device, props, &status);
   CheckOpenclCall(status, "CreateOpenclCommandQueue");
+  return result;
+}
+
+cl::DeviceCommandQueue CreateOpenclDeviceCommandQueue(cl::Context& context, cl::Device& device, std::optional<cl_uint> queueSizeM)
+{
+  cl_int status;
+  cl_uint queueSize = 256 * 1024;
+  if(queueSizeM.has_value())
+  {
+    queueSize = queueSizeM.value();
+  }
+  else
+  {
+    status = device.getInfo(CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE, &queueSize);
+    CheckOpenclCall(status, "CreateOpenclDeviceCommandQueue get CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE");
+  }
+  cl::DeviceCommandQueue result(context, device, queueSize, cl::DeviceQueueProperties::Default, &status);
+  CheckOpenclCall(status, "CreateOpenclDeviceCommandQueue");
   return result;
 }
 

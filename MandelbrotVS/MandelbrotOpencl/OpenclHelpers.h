@@ -4,6 +4,8 @@
 
 #include <string>
 #include <filesystem>
+#include <optional>
+
 #include "cl2.hpp"
 
 std::string OpenclErrorCodeToString(const cl_int code);
@@ -16,5 +18,6 @@ cl::Program CreateOpenclProgramFromCode(std::filesystem::path filePath, cl::Cont
 cl::Program CreateOpenclProgramFromBinary(std::filesystem::path filePath, cl::Context& context, cl::Device& device);
 cl::Kernel CreateOpenclKernel(cl::Program &program, const std::string &kernelName);
 cl::CommandQueue CreateOpenclCommandQueue(cl::Context& context, cl::Device& device);
+cl::DeviceCommandQueue CreateOpenclDeviceCommandQueue(cl::Context& context, cl::Device& device, std::optional<cl_uint> queueSizeM);
 
 void SaveOpenclProgram(cl::Program& program, std::string binaryFileName);

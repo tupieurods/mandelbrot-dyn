@@ -8128,6 +8128,7 @@ enum class DeviceQueueProperties : cl_command_queue_properties
 {
     None = 0,
     Profiling = CL_QUEUE_PROFILING_ENABLE,
+    Default = CL_QUEUE_ON_DEVICE_DEFAULT
 };
 
 inline DeviceQueueProperties operator|(DeviceQueueProperties lhs, DeviceQueueProperties rhs)

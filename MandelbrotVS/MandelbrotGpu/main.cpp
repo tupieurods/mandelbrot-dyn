@@ -20,7 +20,7 @@ void mandelbrotCudaStaticEnqueueTest()
   save_image(imagePath, dwells.data(), w, h);
 
   // print performance
-  printf("Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
+  printf("Nvidia Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
 }
 
 void mandelbrotCudaDynamicEnqueueTest()
@@ -35,10 +35,10 @@ void mandelbrotCudaDynamicEnqueueTest()
   save_image(imagePath, dwells.data(), w, h);
 
   // print performance
-  printf("Mandelbrot set(device enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
+  printf("Nvidia Mandelbrot set(device enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, w * h * 1e-6 / gpuTime);
 }
 
-void mandelbrotOpenclHostEnqueue()
+void mandelbrotOpenclHostEnqueueTest()
 {
   double gpuTime = 0;
   const char imagePath[] = "./mandelbrot_opencl.png";
@@ -50,13 +50,29 @@ void mandelbrotOpenclHostEnqueue()
   save_image(imagePath, dwells.data(), w, h);
 
   // print performance
-  printf("OPENCL. Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, gpuTime != 0.0 ? w * h * 1e-6 / gpuTime : NAN);
+  printf("AMD OPENCL. Mandelbrot set(host enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, gpuTime != 0.0 ? w * h * 1e-6 / gpuTime : NAN);
+}
+
+void mandelbrotOpenclDynamicEnqueueTest()
+{
+  double gpuTime = 0;
+  const char imagePath[] = "./mandelbrot_opencl_dynamic.png";
+  int w = W, h = H;
+
+  std::vector<int> dwells = mandelbrotDeviceEnqueueOpencl(w, h, &gpuTime);
+
+  // save the image to PNG
+  save_image(imagePath, dwells.data(), w, h);
+
+  // print performance
+  printf("AMD OPENCL. Mandelbrot set(device enqueue) computed in %.3lf s, at %.3lf Mpix/s\n", gpuTime, gpuTime != 0.0 ? w * h * 1e-6 / gpuTime : NAN);
 }
 
 int main()
 {
-  //mandelbrotCudaStaticEnqueueTest();
-  //mandelbrotCudaDynamicEnqueueTest();
-  mandelbrotOpenclHostEnqueue();
+  mandelbrotCudaStaticEnqueueTest();
+  mandelbrotCudaDynamicEnqueueTest();
+  mandelbrotOpenclHostEnqueueTest();
+  mandelbrotOpenclDynamicEnqueueTest();
   return 0;
 }
