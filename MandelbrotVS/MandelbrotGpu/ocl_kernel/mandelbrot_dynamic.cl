@@ -44,7 +44,7 @@ int pixelDwell(int w, int h, float2 cmin, float2 cmax, int xPos, int yPos)
   return dwell;
 }
 
-int getSameDweel(int d1, int d2)
+int getSameDwell(int d1, int d2)
 {
   if(d1 == d2)
   {
@@ -66,28 +66,15 @@ int getBorderDwell(int w, int h, float2 cmin, float2 cmax, int x0, int y0, int d
   int groupSize = get_local_size(0) * get_local_size(1);
   int commonDwell = NEUT_DWELL;
 
-  for(int offset = tid; offset < d; offset += groupSize)
+  for(int r = tid; r < d; r += groupSize)
   {
-    int dwell = pixelDwell(w, h, cmin, cmax, x0 + offset, y0);
-    commonDwell = getSameDweel(commonDwell, dwell);
-  }
-
-  for(int offset = tid; offset < d; offset += groupSize)
-  {
-    int dwell = pixelDwell(w, h, cmin, cmax, x0 + offset, y0 + d - 1);
-    commonDwell = getSameDweel(commonDwell, dwell);
-  }
-
-  for(int offset = tid; offset < d; offset += groupSize)
-  {
-    int dwell = pixelDwell(w, h, cmin, cmax, x0, y0 + offset);
-    commonDwell = getSameDweel(commonDwell, dwell);
-  }
-
-  for(int offset = tid; offset < d; offset += groupSize)
-  {
-    int dwell = pixelDwell(w, h, cmin, cmax, x0 + d - 1, y0 + offset);
-    commonDwell = getSameDweel(commonDwell, dwell);
+    for(int b = 0; b < 4; b++)
+    {
+      int x = b % 2 != 0 ? x0 + r : (b == 0 ? x0 + d - 1 : x0);
+      int y = b % 2 == 0 ? y0 + r : (b == 1 ? y0 + d - 1 : y0);
+      int dwell = pixelDwell(w, h, cmin, cmax, x, y);
+      commonDwell = getSameDwell(commonDwell, dwell);
+    }
   }
 
   __local int localDwells[WORKSIZE_X * WORKSIZE_Y];
@@ -103,7 +90,7 @@ int getBorderDwell(int w, int h, float2 cmin, float2 cmax, int x0, int y0, int d
     int ntHalf = nt / 2;
     if(tid < ntHalf)
     {
-      localDwells[tid] = getSameDweel(localDwells[tid], localDwells[tid + ntHalf]);
+      localDwells[tid] = getSameDwell(localDwells[tid], localDwells[tid + ntHalf]);
     }
     barrier(CLK_LOCAL_MEM_FENCE);
   }
@@ -144,7 +131,7 @@ __kernel void mandelbrotPerPixel(
   dwells[yPos * w + xPos] = dwell;
 }
 
-/*__attribute__((reqd_work_group_size(WORKSIZE_X, WORKSIZE_Y, 1)))
+__attribute__((reqd_work_group_size(WORKSIZE_X, WORKSIZE_Y, 1)))
 __kernel void mandelbrot(
   __global int *dwells,
   int w,
@@ -154,10 +141,10 @@ __kernel void mandelbrot(
   int x0,
   int y0,
   int d,
-  int depth,
-  queue_t queue
+  int depth
 )
 {
+  queue_t defQ = get_default_queue();
   x0 += d * get_group_id(0);
   y0 += d * get_group_id(1);
   int commonDwell = getBorderDwell(w, h, cmin, cmax, x0, y0, d);
@@ -171,7 +158,7 @@ __kernel void mandelbrot(
       void (^mandelbrotFillCommonBLK)(void) = ^{mandelbrotFillCommon(dwells, w, x0, y0, d, commonDwell);};
       ndrange_t ndrange = ndrange_2D(globalWorkSize, localWorkSize);
       enqueue_kernel(
-        queue,
+        defQ,
         CLK_ENQUEUE_FLAGS_NO_WAIT,
         ndrange,
         mandelbrotFillCommonBLK
@@ -181,10 +168,10 @@ __kernel void mandelbrot(
     {
       size_t globalWorkSize[2] = {WORKSIZE_X * SUBDIV, WORKSIZE_Y * SUBDIV};
       size_t localWorkSize[2] = {WORKSIZE_X, WORKSIZE_Y};
-      void (^mandelbrotBLK)(void) = ^{mandelbrot(dwells, w, h, cmin, cmax, x0, y0, d / SUBDIV, depth + 1, queue);};
+      void (^mandelbrotBLK)(void) = ^{mandelbrot(dwells, w, h, cmin, cmax, x0, y0, d / SUBDIV, depth + 1);};
       ndrange_t ndrange = ndrange_2D(globalWorkSize, localWorkSize);
       enqueue_kernel(
-        queue,
+        defQ,
         CLK_ENQUEUE_FLAGS_NO_WAIT,
         ndrange,
         mandelbrotBLK
@@ -197,16 +184,16 @@ __kernel void mandelbrot(
       void (^mandelbrotPerPixelBLK)(void) = ^{mandelbrotPerPixel(dwells, w, h, cmin, cmax, x0, y0);};
       ndrange_t ndrange = ndrange_2D(globalWorkSize, localWorkSize);
       enqueue_kernel(
-        queue,
+        defQ,
         CLK_ENQUEUE_FLAGS_NO_WAIT,
         ndrange,
         mandelbrotPerPixelBLK
       );
     }
   }
-}*/
+}
 
-__attribute__((reqd_work_group_size(WORKSIZE_X, WORKSIZE_Y, 1)))
+/*__attribute__((reqd_work_group_size(WORKSIZE_X, WORKSIZE_Y, 1)))
 __kernel void mandelbrot(
   __global int *dwells,
   int w,
@@ -281,6 +268,6 @@ __kernel void mandelbrot(
     release_event(finishKernelEvent);
     release_event(enqueueMarkerEvent);
   }
-}
+}*/
 
 #endif // MANDELBROT_DYNAMIC_CL

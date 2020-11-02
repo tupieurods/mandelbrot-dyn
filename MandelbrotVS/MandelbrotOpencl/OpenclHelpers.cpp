@@ -83,7 +83,7 @@ cl::Platform GetOpenclPlatform(cl_uint platformId)
   cl::Platform result = platforms[platformId];
 
   std::string str = result.getInfo<CL_PLATFORM_NAME>();
-  printf("Selected platform with name: %s\n", str.c_str());
+  //printf("Selected platform with name: %s\n", str.c_str());
 
   return result;
 }
@@ -102,7 +102,7 @@ cl::Device GetOpenclDevice(cl::Platform &platform, cl_uint deviceId)
   cl::Device result = devices[deviceId];
 
   std::string str = result.getInfo<CL_DEVICE_NAME>();
-  printf("Selected device with name: %s\n", str.c_str());
+  //printf("Selected device with name: %s\n", str.c_str());
 
   return result;
 }
