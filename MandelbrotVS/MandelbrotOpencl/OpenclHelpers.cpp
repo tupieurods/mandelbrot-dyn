@@ -118,12 +118,14 @@ cl::Context CreateOpenclContext(cl::Platform &platform, cl::Device &device)
   return result;
 }
 
-cl::Program CreateOpenclProgramFromCode(std::filesystem::path filePath, cl::Context &context, cl::Device &device)
+cl::Program CreateOpenclProgramFromCode(std::filesystem::path filePath, std::filesystem::path includeDir, cl::Context &context, cl::Device &device)
 {
   const std::string programSource = LoadTextFile(filePath.string());
-  cl::Program result(context, programSource);
 
-  if(result.build("-cl-std=CL2.0") != CL_SUCCESS)
+  cl::Program result(context, programSource);
+  std::string buildOptions = "-cl-std=CL2.0 -I \"" + includeDir.string() + "\"";
+
+  if(result.build(buildOptions.c_str()) != CL_SUCCESS)
   {
     std::string errorLog;
     // CL_PROGRAM_BUILD_LOG

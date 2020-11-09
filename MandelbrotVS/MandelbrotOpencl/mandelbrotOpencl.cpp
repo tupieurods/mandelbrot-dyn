@@ -16,6 +16,7 @@ std::vector<int> mandelbrotHostEnqueueOpencl(int w, int h, double *gpuTime)
   std::vector<int> dwellsHost(w * h);
   const std::string openclFilename = "ocl_kernel/mandelbrot.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
+  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
 
   try
   {
@@ -23,7 +24,7 @@ std::vector<int> mandelbrotHostEnqueueOpencl(int w, int h, double *gpuTime)
     cl::Device device = GetOpenclDevice(platform, DEVICE_ID);
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
-    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, context, device);
+    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
     const cl::Kernel kernel = CreateOpenclKernel(program, "mandelbrot");
 
     cl_int status = CL_SUCCESS;
@@ -64,6 +65,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, in
   std::vector<int> dwellsHost(w * h);
   const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
+  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
   int initSubdiv = 32;
   int maxDepth = 4;
   int subdiv = 4;
@@ -77,7 +79,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, in
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
-    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, context, device);
+    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
     const cl::Kernel kernel = CreateOpenclKernel(program, "mandelbrot");
 
     cl_int status = CL_SUCCESS;
@@ -139,6 +141,7 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpu
   std::vector<int> dwellsHost(w * h);
   const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic_with_host.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
+  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
   int initSubdiv = 32;
   int maxDepth = 4;
   int subdiv = 4;
@@ -152,7 +155,7 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpu
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
-    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, context, device);
+    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
     //const cl::Kernel kernel = CreateOpenclKernel(program, "mandelbrot");
     const cl::Kernel getBorderDwellKernel = CreateOpenclKernel(program, "getBorderDwellKernel");
     const cl::Kernel fillCommonDwellKernel = CreateOpenclKernel(program, "fillCommonDwellKernel");
@@ -321,6 +324,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl2(int w, int h, double *gpuTime, i
   std::vector<int> dwellsHost(w * h);
   const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic_test2.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
+  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
 
   try
   {
@@ -329,7 +333,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl2(int w, int h, double *gpuTime, i
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
-    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, context, device);
+    cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
     const cl::Kernel kernel = CreateOpenclKernel(program, "mandelbrotDevice");
 
     cl_int status = CL_SUCCESS;
