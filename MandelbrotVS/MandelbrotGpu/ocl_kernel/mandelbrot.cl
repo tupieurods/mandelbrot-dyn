@@ -9,8 +9,6 @@ __kernel void mandelbrot(__global int *dwells, int w, int h, float2 cmin, float2
   int xPos = get_global_id(0) - get_global_offset(0);
   int yPos = get_global_id(1) - get_global_offset(1);
 
-  //printf((__constant char *)"%d %d\n", xPos, yPos);
-
   int dwell = pixelDwell(w, h, cmin, cmax, xPos, yPos);
   dwells[yPos * w + xPos] = dwell;
 }

@@ -3,70 +3,12 @@
 
 #include "mandelbrot_core.cl"
 
-#define WORKSIZE_X 64
-#define WORKSIZE_Y 4
-
-
 /** maximum recursion depth */
 #define MAX_DEPTH 4
 /** region below which do per-pixel */
 #define MIN_SIZE 32
 /** subdivision factor along each axis */
 #define SUBDIV 4
-
-int getSameDwell(int d1, int d2)
-{
-  if(d1 == d2)
-  {
-    return d1;
-  }
-  else if(d1 == NEUT_DWELL || d2 == NEUT_DWELL)
-  {
-    return min(d1,d2);
-  }
-  else
-  {
-    return DIFF_DWELL;
-  }
-}
-
-int getBorderDwell(int w, int h, float2 cmin, float2 cmax, int x0, int y0, int d)
-{
-  int tid = get_local_id(1) * get_local_size(0) + get_local_id(0);
-  int groupSize = get_local_size(0) * get_local_size(1);
-  int commonDwell = NEUT_DWELL;
-
-  for(int r = tid; r < d; r += groupSize)
-  {
-    for(int b = 0; b < 4; b++)
-    {
-      int x = b % 2 != 0 ? x0 + r : (b == 0 ? x0 + d - 1 : x0);
-      int y = b % 2 == 0 ? y0 + r : (b == 1 ? y0 + d - 1 : y0);
-      int dwell = pixelDwell(w, h, cmin, cmax, x, y);
-      commonDwell = getSameDwell(commonDwell, dwell);
-    }
-  }
-
-  __local int localDwells[WORKSIZE_X * WORKSIZE_Y];
-  int nt = min(d, groupSize);
-  if(tid < nt)
-  {
-    localDwells[tid] = commonDwell;
-  }
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  for(; nt > 1; nt /= 2)
-  {
-    int ntHalf = nt / 2;
-    if(tid < ntHalf)
-    {
-      localDwells[tid] = getSameDwell(localDwells[tid], localDwells[tid + ntHalf]);
-    }
-    barrier(CLK_LOCAL_MEM_FENCE);
-  }
-
-  return localDwells[0];
-}
 
 __attribute__((reqd_work_group_size(WORKSIZE_X, WORKSIZE_Y, 1)))
 __kernel void mandelbrotFillCommon(
