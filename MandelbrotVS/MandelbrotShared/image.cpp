@@ -1,9 +1,9 @@
-#pragma once
+#include "image.h"
+#include "conf.h"
 
 #include <png.h>
 #include <cstdio>
 #include <cstdlib>
-#include "conf.h"
 
 void dwell_color(int* r, int* g, int* b, int dwell)
 {

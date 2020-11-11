@@ -51,18 +51,6 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)MandelbrotCuda;$(SolutionDir)MandelbrotOpencl;$(SolutionDir)MandelbrotShared;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgEnabled>true</VcpkgEnabled>
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-    <VcpkgTriplet>x64-windows-static-md</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgEnabled>true</VcpkgEnabled>
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-    <VcpkgTriplet>x64-windows-static-md</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -103,12 +91,11 @@
     <ProjectReference Include="..\MandelbrotOpencl\MandelbrotOpencl.vcxproj">
       <Project>{595782cb-5ce1-4567-8e03-533df6c35bd3}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="image.h" />
+    <ProjectReference Include="..\MandelbrotShared\MandelbrotShared.vcxproj">
+      <Project>{47e6887a-c56c-499b-8f8e-853d518ee676}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <Import Project="$(VCPKG_ROOT)\scripts\buildsystems\msbuild\vcpkg.targets" />
 </Project>
