@@ -72,7 +72,7 @@ void mandelbrotOpenclDynamicEnqueueTest2()
   const char imagePath[] = "./mandelbrot_opencl_dynamic_test2.png";
   int w = W, h = H;
 
-  std::vector<int> dwells = mandelbrotDeviceEnqueueOpencl2(w, h, gpuTime, numberOfRuns, PLATFORM_ID, DEVICE_ID);
+  std::vector<int> dwells = mandelbrotHostEnqueueSingleWorkitemOpencl(w, h, gpuTime, numberOfRuns, PLATFORM_ID, DEVICE_ID);
 
   // save the image to PNG
   save_image(imagePath, dwells.data(), w, h);

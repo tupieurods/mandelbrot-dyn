@@ -32,10 +32,19 @@
     <ClCompile Include="OpenclHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mandelbrotOpencl.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="mandelbrotOpenclHostEnqueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mandelbrotOpenclDeviceEnqueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mandelbrotOpenclDeviceEnqueueWithHost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mandelbrotOpenclHostEnqueueSingleWorkitem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

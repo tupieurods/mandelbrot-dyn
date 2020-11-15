@@ -93,7 +93,10 @@
   <ItemGroup>
     <ClCompile Include="FileHelpers.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mandelbrotOpencl.cpp" />
+    <ClCompile Include="mandelbrotOpenclDeviceEnqueue.cpp" />
+    <ClCompile Include="mandelbrotOpenclDeviceEnqueueWithHost.cpp" />
+    <ClCompile Include="mandelbrotOpenclHostEnqueue.cpp" />
+    <ClCompile Include="mandelbrotOpenclHostEnqueueSingleWorkitem.cpp" />
     <ClCompile Include="OpenclHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
