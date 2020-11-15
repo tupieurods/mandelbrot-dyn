@@ -20,6 +20,14 @@
     <CudaCompile Include="mandelbrot.cu" />
     <CudaCompile Include="mandelbrotDevice.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MandelbrotShared\MandelbrotShared.vcxproj">
+      <Project>{47e6887a-c56c-499b-8f8e-853d518ee676}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{96CD4300-C8CB-4A24-81AD-C814FD9D2222}</ProjectGuid>
     <RootNamespace>MandelbrotCuda</RootNamespace>
@@ -27,13 +35,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -66,10 +74,11 @@
       </Defines>
       <Include>$(SolutionDir)MandelbrotShared;</Include>
     </CudaCompile>
-    <Lib>
+    <Link>
       <AdditionalDependencies>cudart_static.lib;cudadevrt.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+      <SubSystem>Console</SubSystem>
+    </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -84,10 +93,11 @@
       </Defines>
       <Include>$(SolutionDir)MandelbrotShared;</Include>
     </CudaCompile>
-    <Lib>
+    <Link>
       <AdditionalDependencies>cudart_static.lib;cudadevrt.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+      <SubSystem>Console</SubSystem>
+    </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>

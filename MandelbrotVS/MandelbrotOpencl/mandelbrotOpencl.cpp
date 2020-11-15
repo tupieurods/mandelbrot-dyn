@@ -8,20 +8,17 @@
 #include "cl2.hpp"
 #include "OpenclHelpers.h"
 
-static const cl_uint PLATFORM_ID = 0;
-static const cl_uint DEVICE_ID = 0;
-
-std::vector<int> mandelbrotHostEnqueueOpencl(int w, int h, double *gpuTime)
+std::vector<int> mandelbrotHostEnqueueOpencl(int w, int h, double *gpuTime, cl_uint platformId, cl_int deviceId)
 {
   std::vector<int> dwellsHost(w * h);
-  const std::string openclFilename = "ocl_kernel/mandelbrot.cl";
+  const std::string openclFilename = "kernels/mandelbrot.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
-  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
+  const auto openclIncludeDir = std::filesystem::current_path().append("kernels");
 
   try
   {
-    cl::Platform platform = GetOpenclPlatform(PLATFORM_ID);
-    cl::Device device = GetOpenclDevice(platform, DEVICE_ID);
+    cl::Platform platform = GetOpenclPlatform(platformId);
+    cl::Device device = GetOpenclDevice(platform, deviceId);
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
@@ -60,12 +57,12 @@ std::vector<int> mandelbrotHostEnqueueOpencl(int w, int h, double *gpuTime)
   return dwellsHost;
 }
 
-std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, int numberOfRuns)
+std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, int numberOfRuns, cl_uint platformId, cl_int deviceId)
 {
   std::vector<int> dwellsHost(w * h);
-  const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic.cl";
+  const std::string openclFilename = "kernels/mandelbrot_dynamic.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
-  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
+  const auto openclIncludeDir = std::filesystem::current_path().append("kernels");
   int initSubdiv = 32;
   int maxDepth = 4;
   int subdiv = 4;
@@ -74,8 +71,8 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, in
 
   try
   {
-    cl::Platform platform = GetOpenclPlatform(PLATFORM_ID);
-    cl::Device device = GetOpenclDevice(platform, DEVICE_ID);
+    cl::Platform platform = GetOpenclPlatform(platformId);
+    cl::Device device = GetOpenclDevice(platform, deviceId);
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
@@ -136,12 +133,12 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double *gpuTime, in
   return dwellsHost;
 }
 
-std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpuTime, int numberOfRuns)
+std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpuTime, int numberOfRuns, cl_uint platformId, cl_int deviceId)
 {
   std::vector<int> dwellsHost(w * h);
-  const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic_with_host.cl";
+  const std::string openclFilename = "kernels/mandelbrot_dynamic_with_host.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
-  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
+  const auto openclIncludeDir = std::filesystem::current_path().append("kernels");
   int initSubdiv = 32;
   int maxDepth = 4;
   int subdiv = 4;
@@ -150,8 +147,8 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpu
 
   try
   {
-    cl::Platform platform = GetOpenclPlatform(PLATFORM_ID);
-    cl::Device device = GetOpenclDevice(platform, DEVICE_ID);
+    cl::Platform platform = GetOpenclPlatform(platformId);
+    cl::Device device = GetOpenclDevice(platform, deviceId);
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
@@ -319,17 +316,17 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double *gpu
 }
 
 
-std::vector<int> mandelbrotDeviceEnqueueOpencl2(int w, int h, double *gpuTime, int numberOfRuns)
+std::vector<int> mandelbrotDeviceEnqueueOpencl2(int w, int h, double *gpuTime, int numberOfRuns, cl_uint platformId, cl_int deviceId)
 {
   std::vector<int> dwellsHost(w * h);
-  const std::string openclFilename = "ocl_kernel/mandelbrot_dynamic_test2.cl";
+  const std::string openclFilename = "kernels/mandelbrot_dynamic_test2.cl";
   const auto openclFileFullPath = std::filesystem::current_path().append(openclFilename);
-  const auto openclIncludeDir = std::filesystem::current_path().append("ocl_kernel");
+  const auto openclIncludeDir = std::filesystem::current_path().append("kernels");
 
   try
   {
-    cl::Platform platform = GetOpenclPlatform(PLATFORM_ID);
-    cl::Device device = GetOpenclDevice(platform, DEVICE_ID);
+    cl::Platform platform = GetOpenclPlatform(platformId);
+    cl::Device device = GetOpenclDevice(platform, deviceId);
     cl::Context context = CreateOpenclContext(platform, device);
     cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());

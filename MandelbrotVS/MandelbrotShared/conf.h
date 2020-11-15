@@ -1,11 +1,14 @@
 #pragma once
 
+/** data size */
+#define H (16 * 1024)
+#define W (16 * 1024)
+
 //#define MAX_DWELL 256
 #define BS 256
 
 /** gets the color, given the dwell (on host) */
 #define CUT_DWELL (MAX_DWELL / 4)
-
 
 #define MAX_DWELL 256
 /** block size along */

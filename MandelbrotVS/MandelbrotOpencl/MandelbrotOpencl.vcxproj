@@ -19,13 +19,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -45,11 +45,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(AMDAPPSDKROOT)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(AMDAPPSDKROOT)include;$(SolutionDir)MandelbrotShared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(AMDAPPSDKROOT)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(AMDAPPSDKROOT)include;$(SolutionDir)MandelbrotShared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -62,11 +62,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Lib>
       <AdditionalDependencies>opencl.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(AMDAPPSDKROOT)lib\x86_64;</AdditionalLibraryDirectories>
-    </Lib>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -82,12 +80,10 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Lib>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>opencl.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(AMDAPPSDKROOT)lib\x86_64;</AdditionalLibraryDirectories>
-    </Lib>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FileHelpers.h" />
@@ -96,8 +92,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileHelpers.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="mandelbrotOpencl.cpp" />
     <ClCompile Include="OpenclHelpers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MandelbrotShared\MandelbrotShared.vcxproj">
+      <Project>{47e6887a-c56c-499b-8f8e-853d518ee676}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
