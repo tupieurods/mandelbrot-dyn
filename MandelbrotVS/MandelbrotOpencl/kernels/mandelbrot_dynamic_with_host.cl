@@ -128,6 +128,47 @@ __kernel void getBorderDwellDeviceEnqueueKernel(
   );
 }
 
+__attribute__((reqd_work_group_size(1, 1, 1)))
+__kernel void getBorderDwellDeviceEnqueueKernelLauncher(
+  __global int *taskCountsBufferOld,
+  __global int2 *borderBufferOld,
+
+  __global int4 *commonFillBuffer,
+  __global int2 *perPixelBuffer,
+  __global int2 *borderBufferNew,
+  __global int *taskCountsBuffer,
+  int w,
+  int h,
+  float2 cmin,
+  float2 cmax,
+  int d,
+  int depth
+)
+{
+  if(taskCountsBufferOld[2] == 0) return;
+  queue_t defQ = get_default_queue();
+
+  void (^launcherBLK)(void) = ^{getBorderDwellDeviceEnqueueKernel(
+    borderBufferOld,
+    commonFillBuffer,
+    perPixelBuffer,
+    borderBufferNew,
+    taskCountsBuffer,
+    w,
+    h,
+    cmin,
+    cmax,
+    d,
+    depth
+  );};
+  ndrange_t ndrange = ndrange_1D(taskCountsBufferOld[2], WORKSIZE_X);
+  enqueue_kernel(
+    defQ,
+    CLK_ENQUEUE_FLAGS_NO_WAIT,
+    ndrange,
+    launcherBLK
+  );
+}
 
 __attribute__((reqd_work_group_size(WORKSIZE_X, 1, 1)))
 __kernel void fillCommonDwellKernel(__global int4 *commonFillBuffer, __global int *dwells, int w, int d)
@@ -146,6 +187,28 @@ __kernel void fillCommonDwellKernel(__global int4 *commonFillBuffer, __global in
     CLK_ENQUEUE_FLAGS_NO_WAIT,
     ndrange,
     mandelbrotFillCommonBLK
+  );
+}
+
+__attribute__((reqd_work_group_size(1, 1, 1)))
+__kernel void fillCommonDwellKernelLauncher(
+  __global int *taskCountsBuffer,
+  __global int4 *commonFillBuffer,
+  __global int *dwells,
+  int w,
+  int d
+)
+{
+  if(taskCountsBuffer[0] == 0) return;
+  queue_t defQ = get_default_queue();
+
+  void (^launcherBLK)(void) = ^{fillCommonDwellKernel(commonFillBuffer, dwells, w, d);};
+  ndrange_t ndrange = ndrange_1D(taskCountsBuffer[0], WORKSIZE_X);
+  enqueue_kernel(
+    defQ,
+    CLK_ENQUEUE_FLAGS_NO_WAIT,
+    ndrange,
+    launcherBLK
   );
 }
 
@@ -173,6 +236,31 @@ __kernel void mandelbrotPerPixelKernel(
     CLK_ENQUEUE_FLAGS_NO_WAIT,
     ndrange,
     mandelbrotPerPixelBLK
+  );
+}
+
+__attribute__((reqd_work_group_size(1, 1, 1)))
+__kernel void mandelbrotPerPixelKernelLauncher(
+  __global int *taskCountsBuffer,
+  __global int2 *perPixelBuffer,
+  __global int *dwells,
+  int w,
+  int h,
+  float2 cmin,
+  float2 cmax,
+  int d
+)
+{
+  if(taskCountsBuffer[1] == 0) return;
+  queue_t defQ = get_default_queue();
+
+  void (^launcherBLK)(void) = ^{mandelbrotPerPixelKernel(perPixelBuffer, dwells, w, h, cmin, cmax, d);};
+  ndrange_t ndrange = ndrange_1D(taskCountsBuffer[1], WORKSIZE_X);
+  enqueue_kernel(
+    defQ,
+    CLK_ENQUEUE_FLAGS_NO_WAIT,
+    ndrange,
+    launcherBLK
   );
 }
 

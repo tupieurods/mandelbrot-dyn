@@ -27,9 +27,13 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
     cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
 
     const cl::Kernel getBorderDwellKernel = CreateOpenclKernel(program, "getBorderDwellKernel");
-    const cl::Kernel fillCommonDwellKernel = CreateOpenclKernel(program, "fillCommonDwellKernel");
+    /*const cl::Kernel fillCommonDwellKernel = CreateOpenclKernel(program, "fillCommonDwellKernel");
     const cl::Kernel mandelbrotPerPixelKernel = CreateOpenclKernel(program, "mandelbrotPerPixelKernel");
-    const cl::Kernel getBorderDwellDeviceEnqueueKernel = CreateOpenclKernel(program, "getBorderDwellDeviceEnqueueKernel");
+    const cl::Kernel getBorderDwellDeviceEnqueueKernel = CreateOpenclKernel(program, "getBorderDwellDeviceEnqueueKernel");*/
+    const cl::Kernel fillCommonDwellKernelLauncher = CreateOpenclKernel(program, "fillCommonDwellKernelLauncher");
+    const cl::Kernel mandelbrotPerPixelKernelLauncher = CreateOpenclKernel(program, "mandelbrotPerPixelKernelLauncher");
+    const cl::Kernel getBorderDwellDeviceEnqueueKernelLauncher = CreateOpenclKernel(program, "getBorderDwellDeviceEnqueueKernelLauncher");
+    //const cl::Kernel launchKernelsFromDevice = CreateOpenclKernel(program, "launchKernelsFromDevice");
 
     cl_int status = CL_SUCCESS;
 
@@ -80,10 +84,21 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
     }
 
     cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int, cl_int, cl_int> getBorderDwellKernelFunctor(getBorderDwellKernel);
-    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int> getBorderDwellDeviceEnqueueKernelFunctor(
+    /*cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int> getBorderDwellDeviceEnqueueKernelFunctor(
       getBorderDwellDeviceEnqueueKernel);
     cl::KernelFunctor<cl::Buffer, cl::Buffer, cl_int, cl_int> fillCommonDwellKernelFunctor(fillCommonDwellKernel);
-    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int> mandelbrotPerPixelKernelFunctor(mandelbrotPerPixelKernel);
+    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int> mandelbrotPerPixelKernelFunctor(mandelbrotPerPixelKernel);*/
+    /*cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer,
+      cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer,
+      cl::Buffer,
+      cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int
+    > launchKernelsFromDeviceFunctor(launchKernelsFromDevice);*/
+
+    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int> getBorderDwellDeviceEnqueueKernelLauncherFunctor(
+      getBorderDwellDeviceEnqueueKernelLauncher);
+    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int> fillCommonDwellKernelLauncherFunctor(fillCommonDwellKernelLauncher);
+    cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int> mandelbrotPerPixelKernelLauncherFunctor(mandelbrotPerPixelKernelLauncher);
+    
 
     for(int T = 0; T < numberOfRuns; T++)
     {
@@ -100,69 +115,88 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
 
       const double t1 = omp_get_wtime();
 
-      for(int depth = 1; depth <= maxDepth; depth++)
+      getBorderDwellKernelFunctor(
+        cl::EnqueueArgs(
+          commandQueue,
+          cl::NDRange(localWorksizeX * initSubdiv, localWorksizeY * initSubdiv, 1),
+          cl::NDRange(localWorksizeX, localWorksizeY, 1)
+        ),
+        commonFillBuffer[0],
+        perPixelBuffer[0],
+        borderDwellBuffer[0],
+        countsBuffer[0],
+        w,
+        h,
+        cmin,
+        cmax,
+        0,
+        0,
+        d,
+        1, // depth
+        status
+      );
+      CheckOpenclCall(status, "getBorderDwellKernel enqueue call");
+      /*CheckOpenclCall(cl::copy(commandQueue, countsBuffer[0], countsHost.begin(), countsHost.end()), "copy from countsBuffer[0] to host");
+      printf("%d: %d %d %d\n", d, countsHost[0], countsHost[1], countsHost[2]);*/
+
+      for(int depth = 2; depth <= 3; depth++)
       {
-        if(depth == 1)
-        {
-          getBorderDwellKernelFunctor(
-            cl::EnqueueArgs(
-              commandQueue,
-              cl::NDRange(localWorksizeX * initSubdiv, localWorksizeY * initSubdiv, 1),
-              cl::NDRange(localWorksizeX, localWorksizeY, 1)
-            ),
-            commonFillBuffer[0],
-            perPixelBuffer[0],
-            borderDwellBuffer[0],
-            countsBuffer[0],
-            w,
-            h,
-            cmin,
-            cmax,
-            0,
-            0,
-            d,
-            depth,
-            status
-          );
-          CheckOpenclCall(status, "getBorderDwellKernel enqueue call");
-          CheckOpenclCall(cl::copy(commandQueue, countsBuffer[0], countsHost.begin(), countsHost.end()), "copy from countsBuffer[0] to host");
-        }
-        else
-        {
-          d /= subdiv;
+        fillCommonDwellKernelLauncherFunctor(
+          cl::EnqueueArgs(
+            commandQueue,
+            cl::NDRange(1, 1, 1),
+            cl::NDRange(1, 1, 1)
+          ),
+          countsBuffer[depth - 2],
+          commonFillBuffer[depth - 2],
+          dwellsBuffer,
+          w,
+          d
+        );
 
-          if(countsHost[2] != 0)
-          {
-            getBorderDwellDeviceEnqueueKernelFunctor(
-              cl::EnqueueArgs(
-                commandQueue,
-                cl::NDRange(countsHost[2], 1, 1),
-                cl::NDRange(localWorksizeX, 1, 1)
-              ),
-              borderDwellBuffer[depth - 2],
-              commonFillBuffer[depth - 1],
-              perPixelBuffer[depth - 1],
-              borderDwellBuffer[depth - 1],
-              countsBuffer[depth - 1],
-              w,
-              h,
-              cmin,
-              cmax,
-              d,
-              depth,
-              status
-            );
-            CheckOpenclCall(status, "getBorderDwellDeviceEnqueueKernelFunctor enqueue call");
-            CheckOpenclCall(cl::copy(commandQueue, countsBuffer[depth - 1], countsHost.begin(), countsHost.end()), "copy from currentCountsBuffer to host");
-          }
-          else
-          {
-            break;
-          }
-        }
+        mandelbrotPerPixelKernelLauncherFunctor(
+          cl::EnqueueArgs(
+            commandQueue,
+            cl::NDRange(1, 1, 1),
+            cl::NDRange(1, 1, 1)
+          ),
+          countsBuffer[depth - 2],
+          perPixelBuffer[depth - 2],
+          dwellsBuffer,
+          w,
+          h,
+          cmin,
+          cmax,
+          d
+        );
 
-        printf("%d: %d %d %d\n", d, countsHost[0], countsHost[1], countsHost[2]);
+        d /= subdiv;
 
+        getBorderDwellDeviceEnqueueKernelLauncherFunctor(
+          cl::EnqueueArgs(
+            commandQueue,
+            cl::NDRange(1, 1, 1),
+            cl::NDRange(1, 1, 1)
+          ),
+          countsBuffer[depth - 2],
+          borderDwellBuffer[depth - 2],
+          commonFillBuffer[depth - 1],
+          perPixelBuffer[depth - 1],
+          borderDwellBuffer[depth - 1],
+          countsBuffer[depth - 1],
+          w,
+          h,
+          cmin,
+          cmax,
+          d,
+          depth,
+          status
+        );
+        /*CheckOpenclCall(cl::copy(commandQueue, countsBuffer[depth - 1], countsHost.begin(), countsHost.end()), "copy from countsBuffer[depth - 1] to host");
+        printf("%d: %d %d %d\n", d, countsHost[0], countsHost[1], countsHost[2]);*/
+
+        /*printf("%d: %d %d %d\n", d, countsHost[0], countsHost[1], countsHost[2]);
+        
         if(countsHost[0] != 0)
         {
           fillCommonDwellKernelFunctor(
@@ -171,7 +205,7 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
               cl::NDRange(countsHost[0], 1, 1),
               cl::NDRange(localWorksizeX, 1, 1)
             ),
-            commonFillBuffer[depth - 1],
+            commonFillBuffer[depth - 2],
             dwellsBuffer,
             w,
             d
@@ -186,7 +220,7 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
               cl::NDRange(countsHost[1], 1, 1),
               cl::NDRange(localWorksizeX, 1, 1)
             ),
-            perPixelBuffer[depth - 1],
+            perPixelBuffer[depth - 2],
             dwellsBuffer,
             w,
             h,
@@ -195,6 +229,37 @@ std::vector<int> mandelbrotDeviceEnqueueWithHostOpencl(int w, int h, double* gpu
             d
           );
         }
+
+        d /= subdiv;
+
+        if(countsHost[2] != 0)
+        {
+          getBorderDwellDeviceEnqueueKernelFunctor(
+            cl::EnqueueArgs(
+              commandQueue,
+              cl::NDRange(countsHost[2], 1, 1),
+              cl::NDRange(localWorksizeX, 1, 1)
+            ),
+            borderDwellBuffer[depth - 2],
+            commonFillBuffer[depth - 1],
+            perPixelBuffer[depth - 1],
+            borderDwellBuffer[depth - 1],
+            countsBuffer[depth - 1],
+            w,
+            h,
+            cmin,
+            cmax,
+            d,
+            depth,
+            status
+          );
+          CheckOpenclCall(status, "getBorderDwellDeviceEnqueueKernelFunctor enqueue call");
+          CheckOpenclCall(cl::copy(commandQueue, countsBuffer[depth - 1], countsHost.begin(), countsHost.end()), "copy from currentCountsBuffer to host");
+        }
+        else
+        {
+          break;
+        }*/
       }
 
       status = commandQueue.finish();
