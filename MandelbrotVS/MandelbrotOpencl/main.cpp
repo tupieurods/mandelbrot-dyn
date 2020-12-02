@@ -64,12 +64,12 @@ void mandelbrotOpenclDynamicEnqueueWithHostTest()
   printf("\n");
 }
 
-void mandelbrotOpenclDynamicEnqueueTest2()
+void mandelbrotOpenclSingleWorkitemEnqueueTest()
 {
   const int numberOfRuns = 2;
   double gpuTime[numberOfRuns];
   memset(gpuTime, 0, sizeof(double) * numberOfRuns);
-  const char imagePath[] = "./mandelbrot_opencl_dynamic_test2.png";
+  const char imagePath[] = "./mandelbrot_opencl_single_workitem.png";
   int w = W, h = H;
 
   std::vector<int> dwells = mandelbrotHostEnqueueSingleWorkitemOpencl(w, h, gpuTime, numberOfRuns, PLATFORM_ID, DEVICE_ID);
@@ -90,6 +90,6 @@ int main()
   mandelbrotOpenclHostEnqueueTest();
   mandelbrotOpenclDynamicEnqueueTest();
   mandelbrotOpenclDynamicEnqueueWithHostTest();
-  mandelbrotOpenclDynamicEnqueueTest2();
+  mandelbrotOpenclSingleWorkitemEnqueueTest();
   return 0;
 }
