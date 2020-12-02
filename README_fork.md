@@ -7,5 +7,5 @@ libpng package from vcpkg used to save data in png.
 
 required ENV variables:
 
-VCPKG_ROOT - root directory of vcpkg. Example: C:\src\vcpkg
-AMDAPPSDKROOT - path to amd app sdk. Example: C:\Program Files (x86)\AMD APP SDK\3.0\
+- VCPKG_ROOT - root directory of vcpkg. Example: C:\src\vcpkg
+- AMDAPPSDKROOT - path to amd app sdk. Example: C:\Program Files (x86)\AMD APP SDK\3.0\
