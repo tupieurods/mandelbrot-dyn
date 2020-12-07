@@ -80,7 +80,7 @@ void mandelbrotOpenclSingleWorkitemEnqueueTest()
   // print performance
   for(int i = 0; i < numberOfRuns; i++)
   {
-    printf("AMD OPENCL. Second test. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s, at %.3lf Mpix/s\n", i, gpuTime[i], gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN);
+    printf("AMD OPENCL. Worksize (1, 1, 1) test. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s, at %.3lf Mpix/s\n", i, gpuTime[i], gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN);
   }
   printf("\n");
 }
