@@ -128,7 +128,6 @@ __kernel void getBorderDwellDeviceEnqueueKernel(
   );
 }
 
-
 __attribute__((reqd_work_group_size(WORKSIZE_X, 1, 1)))
 __kernel void fillCommonDwellKernel(__global int4 *commonFillBuffer, __global int *dwells, int w, int d)
 {

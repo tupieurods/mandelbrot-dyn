@@ -64,12 +64,12 @@ void mandelbrotOpenclDynamicEnqueueWithHostTest()
   printf("\n");
 }
 
-void mandelbrotOpenclDynamicEnqueueTest2()
+void mandelbrotOpenclSingleWorkitemEnqueueTest()
 {
   const int numberOfRuns = 2;
   double gpuTime[numberOfRuns];
   memset(gpuTime, 0, sizeof(double) * numberOfRuns);
-  const char imagePath[] = "./mandelbrot_opencl_dynamic_test2.png";
+  const char imagePath[] = "./mandelbrot_opencl_single_workitem.png";
   int w = W, h = H;
 
   std::vector<int> dwells = mandelbrotHostEnqueueSingleWorkitemOpencl(w, h, gpuTime, numberOfRuns, PLATFORM_ID, DEVICE_ID);
@@ -80,7 +80,7 @@ void mandelbrotOpenclDynamicEnqueueTest2()
   // print performance
   for(int i = 0; i < numberOfRuns; i++)
   {
-    printf("AMD OPENCL. Second test. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s, at %.3lf Mpix/s\n", i, gpuTime[i], gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN);
+    printf("AMD OPENCL. Worksize (1, 1, 1) test. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s, at %.3lf Mpix/s\n", i, gpuTime[i], gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN);
   }
   printf("\n");
 }
@@ -90,6 +90,6 @@ int main()
   mandelbrotOpenclHostEnqueueTest();
   mandelbrotOpenclDynamicEnqueueTest();
   mandelbrotOpenclDynamicEnqueueWithHostTest();
-  mandelbrotOpenclDynamicEnqueueTest2();
+  mandelbrotOpenclSingleWorkitemEnqueueTest();
   return 0;
 }
