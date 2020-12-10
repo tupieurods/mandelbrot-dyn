@@ -4,7 +4,7 @@
 #include "mandelbrotOpencl.h"
 #include "image.h"
 
-static const cl_uint PLATFORM_ID = 0;
+static const cl_uint PLATFORM_ID = 1;
 static const cl_uint DEVICE_ID = 0;
 
 void mandelbrotOpenclHostEnqueueTest()
@@ -25,12 +25,12 @@ void mandelbrotOpenclHostEnqueueTest()
 void mandelbrotOpenclDynamicEnqueueTest()
 {
   const int numberOfRuns = 2;
-  double gpuTime[numberOfRuns];
+  double gpuTime[numberOfRuns], gpuTimeByEvents[numberOfRuns];
   memset(gpuTime, 0, sizeof(double) * numberOfRuns);
   const char imagePath[] = "./mandelbrot_opencl_dynamic.png";
   int w = W, h = H;
 
-  std::vector<int> dwells = mandelbrotDeviceEnqueueOpencl(w, h, gpuTime, numberOfRuns, PLATFORM_ID, DEVICE_ID);
+  std::vector<int> dwells = mandelbrotDeviceEnqueueOpencl(w, h, gpuTime, gpuTimeByEvents, numberOfRuns, PLATFORM_ID, DEVICE_ID);
 
   // save the image to PNG
   save_image(imagePath, dwells.data(), w, h);
@@ -38,7 +38,13 @@ void mandelbrotOpenclDynamicEnqueueTest()
   // print performance
   for(int i = 0; i < numberOfRuns; i++)
   {
-    printf("AMD OPENCL. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s, at %.3lf Mpix/s\n", i, gpuTime[i], gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN);
+    printf("AMD OPENCL. Mandelbrot set(device enqueue) RUN #%d computed in %.3lf s(%.3lf s by opencl events), at %.3lf Mpix/s(%.3lf Mpix/s by opencl events)\n",
+      i,
+      gpuTime[i],
+      gpuTimeByEvents[i],
+      gpuTime[i] != 0.0 ? w * h * 1e-6 / gpuTime[i] : NAN,
+      gpuTimeByEvents[i] != 0.0 ? w * h * 1e-6 / gpuTimeByEvents[i] : NAN
+    );
   }
   printf("\n");
 }
@@ -87,9 +93,9 @@ void mandelbrotOpenclSingleWorkitemEnqueueTest()
 
 int main()
 {
-  mandelbrotOpenclHostEnqueueTest();
+  //mandelbrotOpenclHostEnqueueTest();
   mandelbrotOpenclDynamicEnqueueTest();
-  mandelbrotOpenclDynamicEnqueueWithHostTest();
-  mandelbrotOpenclSingleWorkitemEnqueueTest();
+  /*mandelbrotOpenclDynamicEnqueueWithHostTest();
+  mandelbrotOpenclSingleWorkitemEnqueueTest();*/
   return 0;
 }

@@ -3,7 +3,7 @@
 #include "mandelbrotOpencl.h"
 #include "OpenclHelpers.h"
 
-std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double* gpuTime, int numberOfRuns, cl_uint platformId, cl_int deviceId)
+std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double* gpuTime, double* gpuTimeByEvents, int numberOfRuns, cl_uint platformId, cl_int deviceId)
 {
   std::vector<int> dwellsHost(w * h);
   const std::string openclFilename = "kernels/mandelbrot_dynamic.cl";
@@ -20,7 +20,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double* gpuTime, in
     cl::Platform platform = GetOpenclPlatform(platformId);
     cl::Device device = GetOpenclDevice(platform, deviceId);
     cl::Context context = CreateOpenclContext(platform, device);
-    cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device);
+    cl::CommandQueue commandQueue = CreateOpenclCommandQueue(context, device, true);
     cl::DeviceCommandQueue deviceCommandQueue = CreateOpenclDeviceCommandQueue(context, device, std::optional<cl_uint>());
     cl::Program program = CreateOpenclProgramFromCode(openclFileFullPath, openclIncludeDir, context, device);
     const cl::Kernel kernel = CreateOpenclKernel(program, "mandelbrot");
@@ -29,7 +29,7 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double* gpuTime, in
     const cl::Buffer dwellsBuffer(context, CL_MEM_WRITE_ONLY, sizeof(cl_int) * w * h, nullptr, &status);
     CheckOpenclCall(status, "clCreateBuffer dwellsBuffer");
 
-    cl::KernelFunctor<cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int, cl_int, cl_int, cl::DeviceCommandQueue> kernelFunctor(kernel);
+    cl::KernelFunctor<cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int, cl_int, cl_int> kernelFunctor(kernel);
 
     for(int T = 0; T < numberOfRuns; T++)
     {
@@ -42,31 +42,34 @@ std::vector<int> mandelbrotDeviceEnqueueOpencl(int w, int h, double* gpuTime, in
 
       const double t1 = omp_get_wtime();
 
-      for(int depth = 1; depth <= maxDepth; depth++)
-      {
-        cl::KernelFunctor<cl::Buffer, cl_int, cl_int, cl_float2, cl_float2, cl_int, cl_int, cl_int, cl_int> kernelFunctor(kernel);
-        kernelFunctor(
-          cl::EnqueueArgs(
-            commandQueue,
-            cl::NDRange(localWorksizeX * initSubdiv, localWorksizeY * initSubdiv, 1),
-            cl::NDRange(localWorksizeX, localWorksizeY, 1)
-          ),
-          dwellsBuffer,
-          w,
-          h,
-          cmin,
-          cmax,
-          0, // x0
-          0, // y0
-          d,
-          1, // depth
-          status
-        );
-        CheckOpenclCall(status, "mandelbrotDeviceEnqueueOpencl kernel call");
-        status = commandQueue.finish();
-        const double t2 = omp_get_wtime();
-        gpuTime[T] = t2 - t1;
-      }
+      auto kernelEvent = kernelFunctor(
+        cl::EnqueueArgs(
+          commandQueue,
+          cl::NDRange(localWorksizeX * initSubdiv, localWorksizeY * initSubdiv, 1),
+          cl::NDRange(localWorksizeX, localWorksizeY, 1)
+        ),
+        dwellsBuffer,
+        w,
+        h,
+        cmin,
+        cmax,
+        0, // x0
+        0, // y0
+        d,
+        1, // depth
+        status
+      );
+      CheckOpenclCall(status, "mandelbrotDeviceEnqueueOpencl kernel call");
+      cl::WaitForEvents({ kernelEvent });
+      status = commandQueue.finish();
+      const double t2 = omp_get_wtime();
+      gpuTime[T] = t2 - t1;
+
+      cl_ulong timeStart, timeEnd;
+      kernelEvent.getProfilingInfo(CL_PROFILING_COMMAND_START, &timeStart);
+      kernelEvent.getProfilingInfo(CL_PROFILING_COMMAND_END, &timeEnd);
+
+      gpuTimeByEvents[T] = static_cast<double>(timeEnd - timeStart) / 1000000000.0;
 
       CheckOpenclCall(cl::copy(commandQueue, dwellsBuffer, dwellsHost.begin(), dwellsHost.end()), "copy from dwellsBuffer to host");
     }

@@ -162,11 +162,11 @@ cl::Kernel CreateOpenclKernel(cl::Program &program, const std::string &kernelNam
   return result;
 }
 
-cl::CommandQueue CreateOpenclCommandQueue(cl::Context &context, cl::Device &device)
+cl::CommandQueue CreateOpenclCommandQueue(cl::Context &context, cl::Device &device, bool enableProfiling)
 {
   cl_int status;
-  const cl_command_queue_properties props = 0;
-  cl::CommandQueue result(context, device, props, &status);
+  auto queueProperties = enableProfiling ? cl::QueueProperties::Profiling : cl::QueueProperties::None;
+  cl::CommandQueue result(context, device, queueProperties, &status);
   CheckOpenclCall(status, "CreateOpenclCommandQueue");
   return result;
 }

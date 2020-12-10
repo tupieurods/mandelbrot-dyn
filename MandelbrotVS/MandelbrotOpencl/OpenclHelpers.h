@@ -17,7 +17,7 @@ cl::Context CreateOpenclContext(cl::Platform& platform, cl::Device& device);
 cl::Program CreateOpenclProgramFromCode(std::filesystem::path filePath, std::filesystem::path includeDir, cl::Context& context, cl::Device& device);
 cl::Program CreateOpenclProgramFromBinary(std::filesystem::path filePath, cl::Context& context, cl::Device& device);
 cl::Kernel CreateOpenclKernel(cl::Program &program, const std::string &kernelName);
-cl::CommandQueue CreateOpenclCommandQueue(cl::Context& context, cl::Device& device);
+cl::CommandQueue CreateOpenclCommandQueue(cl::Context& context, cl::Device& device, bool enableProfiling = false);
 cl::DeviceCommandQueue CreateOpenclDeviceCommandQueue(cl::Context& context, cl::Device& device, std::optional<cl_uint> queueSizeM);
 
 void SaveOpenclProgram(cl::Program& program, std::string binaryFileName);
